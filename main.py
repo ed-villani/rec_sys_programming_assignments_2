@@ -1,10 +1,12 @@
 import json
 import re
-from copy import deepcopy
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
+
+from model.dict.item_dict import ItemDict
+from model.dict.user_dict import UserDict
 
 
 def awards_structure(awards):
@@ -93,8 +95,8 @@ def cosine_similarity(matrix):
 
 
 def main():
-    item_dict = {}
-    user_dict = {}
+    item_dict = ItemDict()
+    user_dict = UserDict()
 
     ratings = read_input_and_split_tuples('inputs/ratings.csv')
     global_avg = 0
@@ -104,24 +106,20 @@ def main():
         item_id = row[4]
         rating = row[1]
 
-        if item_id not in item_dict:
-            item_dict[item_id] = {}
-            item_dict[item_id]['alias_id'] = len(item_dict.keys()) - 1
-            item_dict[item_id]['rates'] = {}
-            item_dict[item_id]['rates']['average'] = 0
-            item_dict[item_id]['rates']['rates'] = {}
+        # if item_id not in item_dict:
+        #     item_dict[item_id] = {}
+        #     item_dict[item_id]['alias_id'] = len(item_dict.keys()) - 1
+        #     item_dict[item_id]['rates'] = {}
+        #     item_dict[item_id]['rates']['average'] = 0
+        #     item_dict[item_id]['rates']['rates'] = {}
 
-        if user_id not in user_dict:
-            user_dict[user_id] = {}
-            user_dict[user_id]['alias_id'] = len(item_dict.keys()) - 1
-            user_dict[user_id]['rates'] = {}
-            user_dict[user_id]['rates']['average'] = 0
-            user_dict[user_id]['rates']['rates'] = {}
+        item_dict.append(item_id)
+        user_dict.append(user_id)
 
-        item_dict[item_id]['rates']['rates'][user_id] = rating
-        set_avg(item_dict, rating, item_id)
-        user_dict[user_id]['rates']['rates'][item_id] = rating
-        set_avg(user_dict, rating, user_id)
+        # item_dict[item_id]['rates']['rates'][user_id] = rating
+        # set_avg(item_dict, rating, item_id)
+        item_dict[item_id].add_rating(rating, user_id)
+        user_dict[user_id].add_rating(rating, item_id)
 
         global_avg = global_avg + rating
 
@@ -154,12 +152,7 @@ def main():
 
         # print(item_content['Actors'])
 
-        if item_id not in item_dict:
-            item_dict[item_id] = {}
-            item_dict[item_id]['alias_id'] = len(item_dict.keys()) - 1
-            item_dict[item_id]['rates'] = {}
-            item_dict[item_id]['rates']['average'] = None
-            item_dict[item_id]['rates']['rates'] = {}
+        item_dict.append(item_id)
 
         item_dict[item_id]['content'] = {}
         item_dict[item_id]['content']['Title'] = item_content['Title']
@@ -270,10 +263,9 @@ def main():
     for index, data in tqdm(enumerate(np.array(targets))):
         user = data[1]
         item = data[2]
-        if user == "u0003691" and item == "i1922545":
-            i = 0
+
         if user in user_dict and item in item_dict:
-            user_rates = user_dict[user]['rates']['rates']
+            user_rates = user_dict[user].rates
 
             all_sm = sm[item_dict[item]['alias_id']]
             div, user_item_similarities = np.sum(np.abs(all_sm[
@@ -283,7 +275,7 @@ def main():
 
             user_rates_values = np.array([value for value in user_rates.values()])
 
-            user_med = user_dict[user]['rates']['average'] if user_dict[user]['rates']['average'] is not None else \
+            user_med = user_dict[user].average_rate if user_dict[user].average_rate is not None else \
                 item_dict[item]['content']['imdbRating']
 
             if div > 0.0001:
@@ -292,7 +284,7 @@ def main():
                 solution[index] = round(user_med, 4)
 
         elif user in user_dict and item not in item_dict:
-            solution[index] = round(user_dict[user]['rates']['average'], 4)
+            solution[index] = round(user_dict[user].average_rate, 4)
         elif user not in user_dict and item in item_dict:
             try:
                 imdb_ratings = item_dict[item]['content']['imdbRating']
