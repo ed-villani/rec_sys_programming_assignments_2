@@ -7,6 +7,34 @@ import numpy as np
 from tqdm import tqdm
 
 
+def awards_structure(awards):
+    def extract_values(regex, string):
+        value = re.findall(regex, string)
+        if not len(value):
+            return 0
+        return sum([int(s_find) for s_find in re.findall(r'\b\d+\b', value[0])])
+
+    s = awards.lower()
+
+    structure = {
+        "Win": extract_values(r'\b\d+\b win', s),
+        "Nomination": extract_values(r'\b\d+\b nomination', s),
+        "BAFTA Won": extract_values(r'won \b\d+\b bafta', s),
+        "BAFTA Nomination": extract_values(r'nominated for \b\d+\b bafta', s),
+        "Oscar Won": extract_values(r'won \b\d+\b oscar', s),
+        "Oscar Nomination": extract_values(r'nominated for \b\d+\b oscar', s),
+        "Golden Won": extract_values(r'won \b\d+\b golden', s),
+        "Golden Nomination": extract_values(r'nominated for \b\d+\b golden', s),
+        "Primetime Emmy Nomination": extract_values(r'nominated for \b\d+\b primetime', s),
+        "Primetime Emmy Won": extract_values(r'won \b\d+\b primetime', s)
+    }
+
+    # This lines asserts if all regex are right
+    # assert sum([int(s_find) for s_find in re.findall(r'\b\d+\b', s)]) == sum([d for d in structure.values()])
+
+    return structure
+
+
 class NormalizationType:
     SUM = 'sum'
     MAX_MIN = 'max-min'
@@ -125,8 +153,8 @@ def main():
         item_dict[item_id]['content'] = {}
         item_dict[item_id]['content']['Title'] = item_content['Title']
 
-        if 'imdbRating' not in content_dict:
-            content_dict['imdbRating'] = len(content_dict.keys())
+        # if 'imdbRating' not in content_dict:
+        #     content_dict['imdbRating'] = len(content_dict.keys())
 
         imdb_rating = item_content['imdbRating']
         if imdb_rating != 'N/A':
@@ -136,9 +164,9 @@ def main():
         else:
             item_dict[item_id]['content']['imdbRating'] = 0
 
-        if 'Awards' not in content_dict:
-            content_dict['Awards'] = len(content_dict.keys())
-        item_dict[item_id]['content']['Awards'] = sum([int(s) for s in re.findall(r'\b\d+\b', item_content['Awards'])])
+        # if 'Awards' not in content_dict:
+        #     content_dict['Awards'] = len(content_dict.keys())
+        item_dict[item_id]['content']['Awards'] = awards_structure(item_content['Awards'])
 
         item_dict[item_id]['content']['Year'] = int(item_content['Year']) if item_content['Year'] != 'N/A' else 0
         if 'Year' not in content_dict:
@@ -190,11 +218,11 @@ def main():
     for item_id in tqdm(item_dict):
         if 'content' not in item_dict[item_id]:
             continue
-        similarity[content_dict['Runtime']][item_dict[item_id]['alias_id']] = item_dict[item_id]['content']['Runtime']
-        similarity[content_dict['Awards']][item_dict[item_id]['alias_id']] = item_dict[item_id]['content']['Awards']
-        similarity[content_dict['imdbRating']][item_dict[item_id]['alias_id']] = item_dict[item_id]['content'][
-            'imdbRating']
-        similarity[content_dict['Year']][item_dict[item_id]['alias_id']] = item_dict[item_id]['content']['Year']
+        # similarity[content_dict['Runtime']][item_dict[item_id]['alias_id']] = item_dict[item_id]['content']['Runtime']
+        # similarity[content_dict['Awards']][item_dict[item_id]['alias_id']] = item_dict[item_id]['content']['Awards']
+        # similarity[content_dict['imdbRating']][item_dict[item_id]['alias_id']] = item_dict[item_id]['content'][
+        #     'imdbRating']
+        # similarity[content_dict['Year']][item_dict[item_id]['alias_id']] = item_dict[item_id]['content']['Year']
 
         for g in item_dict[item_id]['content']['Genre']:
             similarity[content_dict[g]][item_dict[item_id]['alias_id']] = 1
@@ -208,12 +236,12 @@ def main():
         for d in item_dict[item_id]['content']['Director']:
             similarity[content_dict[d]][item_dict[item_id]['alias_id']] = 1
 
-    norm_type = NormalizationType.MAX_MIN2
-    # TODO normalizar esse role aqui. Faze func'ão de normalização
-    similarity[content_dict['Runtime']] = row_normalize(similarity[content_dict['Runtime']], norm_type)
-    similarity[content_dict['Awards']] = row_normalize(similarity[content_dict['Awards']], NormalizationType.MAX_MIN)
-    similarity[content_dict['imdbRating']] = row_normalize(similarity[content_dict['imdbRating']], norm_type)
-    similarity[content_dict['Year']] = row_normalize(similarity[content_dict['Year']], norm_type)
+    # norm_type = NormalizationType.MAX_MIN2
+    # # TODO normalizar esse role aqui. Faze func'ão de normalização
+    # similarity[content_dict['Runtime']] = row_normalize(similarity[content_dict['Runtime']], norm_type)
+    # similarity[content_dict['Awards']] = row_normalize(similarity[content_dict['Awards']], NormalizationType.MAX_MIN)
+    # similarity[content_dict['imdbRating']] = row_normalize(similarity[content_dict['imdbRating']], norm_type)
+    # similarity[content_dict['Year']] = row_normalize(similarity[content_dict['Year']], norm_type)
 
     sm = cosine_similarity(similarity)
 
