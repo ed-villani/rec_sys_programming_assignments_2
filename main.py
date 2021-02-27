@@ -131,7 +131,18 @@ def main():
     content_split = content['ItemId,Content'].str.split(",", n=1, expand=True)
     content['Content'] = content_split[1]
     content['ItemID'] = content_split[0]
-    content_dict = {}
+    content_dict = {
+        "Win": 0,
+        "Nomination": 1,
+        "BAFTA Won": 2,
+        "BAFTA Nomination": 3,
+        "Oscar Won": 4,
+        "Oscar Nomination": 5,
+        "Golden Won": 6,
+        "Golden Nomination": 7,
+        "Primetime Emmy Nomination": 8,
+        "Primetime Emmy Won": 9
+    }
     global_imdb = 0
     i_imdb = 0
     for row in tqdm(np.array(content)):
@@ -153,8 +164,8 @@ def main():
         item_dict[item_id]['content'] = {}
         item_dict[item_id]['content']['Title'] = item_content['Title']
 
-        # if 'imdbRating' not in content_dict:
-        #     content_dict['imdbRating'] = len(content_dict.keys())
+        if 'imdbRating' not in content_dict:
+            content_dict['imdbRating'] = len(content_dict.keys())
 
         imdb_rating = item_content['imdbRating']
         if imdb_rating != 'N/A':
@@ -218,11 +229,11 @@ def main():
     for item_id in tqdm(item_dict):
         if 'content' not in item_dict[item_id]:
             continue
-        # similarity[content_dict['Runtime']][item_dict[item_id]['alias_id']] = item_dict[item_id]['content']['Runtime']
+        similarity[content_dict['Runtime']][item_dict[item_id]['alias_id']] = item_dict[item_id]['content']['Runtime']
         # similarity[content_dict['Awards']][item_dict[item_id]['alias_id']] = item_dict[item_id]['content']['Awards']
-        # similarity[content_dict['imdbRating']][item_dict[item_id]['alias_id']] = item_dict[item_id]['content'][
-        #     'imdbRating']
-        # similarity[content_dict['Year']][item_dict[item_id]['alias_id']] = item_dict[item_id]['content']['Year']
+        similarity[content_dict['imdbRating']][item_dict[item_id]['alias_id']] = item_dict[item_id]['content'][
+            'imdbRating']
+        similarity[content_dict['Year']][item_dict[item_id]['alias_id']] = item_dict[item_id]['content']['Year']
 
         for g in item_dict[item_id]['content']['Genre']:
             similarity[content_dict[g]][item_dict[item_id]['alias_id']] = 1
@@ -236,12 +247,19 @@ def main():
         for d in item_dict[item_id]['content']['Director']:
             similarity[content_dict[d]][item_dict[item_id]['alias_id']] = 1
 
-    # norm_type = NormalizationType.MAX_MIN2
-    # # TODO normalizar esse role aqui. Faze func'ão de normalização
-    # similarity[content_dict['Runtime']] = row_normalize(similarity[content_dict['Runtime']], norm_type)
+        for a in item_dict[item_id]['content']['Awards']:
+            similarity[content_dict[a]][item_dict[item_id]['alias_id']] = item_dict[item_id]['content']['Awards'][a]
+
+    norm_type = NormalizationType.MAX_MIN2
+    # TODO normalizar esse role aqui. Faze func'ão de normalização
+    similarity[content_dict['Runtime']] = row_normalize(similarity[content_dict['Runtime']], norm_type)
     # similarity[content_dict['Awards']] = row_normalize(similarity[content_dict['Awards']], NormalizationType.MAX_MIN)
-    # similarity[content_dict['imdbRating']] = row_normalize(similarity[content_dict['imdbRating']], norm_type)
-    # similarity[content_dict['Year']] = row_normalize(similarity[content_dict['Year']], norm_type)
+    similarity[content_dict['imdbRating']] = row_normalize(similarity[content_dict['imdbRating']], norm_type)
+    similarity[content_dict['Year']] = row_normalize(similarity[content_dict['Year']], norm_type)
+    for index, k in enumerate(content_dict):
+        if index > 9:
+            break
+        similarity[content_dict[k]] = row_normalize(similarity[content_dict[k]], NormalizationType.MAX_MIN)
 
     sm = cosine_similarity(similarity)
 
