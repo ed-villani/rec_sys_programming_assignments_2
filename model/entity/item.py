@@ -30,6 +30,22 @@ class Item(Entity):
     def awards(self) -> dict:
         return self._try_to_get_property_from_content("Awards")
 
+    @property
+    def genres(self) -> dict:
+        return self._try_to_get_property_from_content("Genre")
+
+    @property
+    def countries(self) -> dict:
+        return self._try_to_get_property_from_content("Country")
+
+    @property
+    def languages(self) -> dict:
+        return self._try_to_get_property_from_content("Language")
+
+    @property
+    def directors(self) -> dict:
+        return self._try_to_get_property_from_content("Director")
+
     def add_content(self, content: dict, content_dict: ContentDict):
         def get_runtime() -> int:
             item_runtime = content['Runtime']
