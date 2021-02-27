@@ -32,3 +32,5 @@ class BaseDict:
     def __iter__(self):
         return iter(self._data)
 
+    def __setitem__(self, y, value):
+        self._data[y] = value

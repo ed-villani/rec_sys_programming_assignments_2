@@ -10,6 +10,14 @@ class Entity():
         }
 
     @property
+    def id(self) -> str:
+        return self._data['id']
+
+    @property
+    def alias_id(self) -> int:
+        return self._data['alias_id']
+
+    @property
     def rates(self) -> dict:
         return self._data['rates']['rates']
 
