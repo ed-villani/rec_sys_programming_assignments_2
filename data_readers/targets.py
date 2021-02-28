@@ -68,11 +68,6 @@ class Targets(RecSysData):
                 user_rates_values = np.array([value for value in user_rates.values()])
 
                 self._solution[index] = round(np.average(user_rates_values, weights=user_item_similarities), 4)
-
-            elif user_id in user_dict and item_id not in item_dict:
-                user = user_dict[user_id]
-                self._solution[index] = round(user.average_rate, 4)
-
             elif user_id not in user_dict and item_id in item_dict:
                 item = item_dict[item_id]
                 try:
@@ -84,8 +79,7 @@ class Targets(RecSysData):
                         self._solution[index] = round(item_avg, 4)
                     else:
                         self._solution[index] = round(global_imdb, 4)
-
                 except KeyError:
-                    self._solution[index] = round(item.average_rate, 4)
+                    self._solution[index] = round(global_imdb, 4)
             else:
                 self._solution[index] = round(global_imdb, 4)
