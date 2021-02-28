@@ -17,7 +17,8 @@ class ContentDict(BaseDict):
             "Primetime Emmy Won": 9,
             "Year": 10,
             "Runtime": 11,
-            "imdbRating": 12
+            "imdbRating": 12,
+            "Metascore": 13
         }
 
     def append(self, key) -> None:

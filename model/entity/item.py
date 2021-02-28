@@ -50,6 +50,10 @@ class Item(Entity):
     def actors(self) -> dict:
         return self._try_to_get_property_from_content("Actors")
 
+    @property
+    def metascore(self) -> int:
+        return self._try_to_get_property_from_content("Metascore")
+
     def add_content(self, content: dict, content_dict: ContentDict):
         with open('inputs/stopwords.txt') as f:
             stopwords_list = f.read().splitlines()
@@ -116,10 +120,15 @@ class Item(Entity):
 
             return structure
 
-        def get_imdb_votes():
+        def get_imdb_rate():
             if content["imdbVotes"] == "N/A":
                 return 0
             return int(content["imdbVotes"].replace(",", "").replace(".", ""))
+
+        def get_metascore():
+            if content["Metascore"] == "N/A":
+                return 0
+            return int(content["Metascore"])
 
         self._data.update(
             {
@@ -133,14 +142,14 @@ class Item(Entity):
                     "Director": filter_lists("Director"),
                     "Writer": content["Writer"],
                     "Actors": content["Actors"],
-                    "Plot": stract_plot(content["Plot"]),
+                    "Plot": content["Plot"],
                     "Language": filter_lists("Language"),
                     "Country": filter_lists("Country"),
                     "Awards": awards_structure(content["Awards"]),
                     "Poster": content["Poster"],
-                    "Metascore": content["Metascore"],
+                    "Metascore": get_metascore(),
                     "imdbRating": get_imdb_rating(),
-                    "imdbVotes": get_imdb_votes(),
+                    "imdbVotes": get_imdb_rate(),
                     "imdbID": content["imdbID"],
                     "Type": content["Type"],
                     "Response": eval(content["Response"])

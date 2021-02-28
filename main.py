@@ -33,13 +33,15 @@ def main(argv):
     targets = Targets(argv[2])
 
     item_dict, user_dict, content_dict, global_avg, global_imdb = DictBuilder(ratings, content)
-    sm = cosine_similarity(AttributeMatrix(item_dict, content_dict))
+    attr_matrix = AttributeMatrix(item_dict, content_dict)
+    sm = cosine_similarity(attr_matrix)
 
     targets.solve(
         item_dict=item_dict,
         user_dict=user_dict,
         global_imdb=global_imdb,
-        sm=sm
+        sm=sm,
+        attr_matrix=attr_matrix
     )
 
     targets.to_csv('output.csv')

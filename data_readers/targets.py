@@ -40,7 +40,7 @@ class Targets(RecSysData):
             self.data.drop(columns=["UserID", "ItemID"], inplace=True)
             self.data.to_csv(out_path, index=False)
 
-    def solve(self, item_dict: ItemDict, user_dict: UserDict, global_imdb: float, sm: np.ndarray):
+    def solve(self, item_dict: ItemDict, user_dict: UserDict, global_imdb: float, sm: np.ndarray, **kwargs):
         """
 
         Predict the ratings by using a item-based model. Set user avg if item not
