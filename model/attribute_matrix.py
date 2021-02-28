@@ -34,9 +34,9 @@ class AttributeMatrix:
 
             item_alias_id = item_id.alias_id
 
-            attr_matrix[content_dict['Runtime']][item_alias_id] = item_id.runtime
+            # attr_matrix[content_dict['Runtime']][item_alias_id] = item_id.runtime
             attr_matrix[content_dict['imdbRating']][item_alias_id] = item_id.imdb_rate
-            attr_matrix[content_dict['Year']][item_alias_id] = item_id.year
+            # attr_matrix[content_dict['Year']][item_alias_id] = item_id.year
 
             for g in item_id.genres:
                 attr_matrix[content_dict[g]][item_alias_id] = 1
@@ -50,16 +50,19 @@ class AttributeMatrix:
             for d in item_id.directors:
                 attr_matrix[content_dict[d]][item_alias_id] = 1
 
+            # for ac in item_id.actors:
+            #     attr_matrix[content_dict[d]][item_alias_id] = 1
+
             for a in item_id.awards:
                 attr_matrix[content_dict[a]][item_alias_id] = item_id.awards[a]
 
         norm_type = NormalizationType.MAX_MIN2
 
-        attr_matrix[content_dict['Runtime']] = row_normalize(attr_matrix[content_dict['Runtime']], norm_type)
+        # attr_matrix[content_dict['Runtime']] = row_normalize(attr_matrix[content_dict['Runtime']], norm_type)
         attr_matrix[content_dict['imdbRating']] = row_normalize(attr_matrix[content_dict['imdbRating']], norm_type)
         attr_matrix[content_dict['Year']] = row_normalize(attr_matrix[content_dict['Year']], norm_type)
-        for index, k in enumerate(content_dict):
-            if index > 9:
-                break
-            attr_matrix[content_dict[k]] = row_normalize(attr_matrix[content_dict[k]], NormalizationType.MAX_MIN)
+        # for index, k in enumerate(content_dict):
+        #     if index > 9:
+        #         break
+        #     attr_matrix[content_dict[k]] = row_normalize(attr_matrix[content_dict[k]], NormalizationType.MAX_MIN)
         return attr_matrix

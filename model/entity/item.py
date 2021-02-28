@@ -46,7 +46,14 @@ class Item(Entity):
     def directors(self) -> dict:
         return self._try_to_get_property_from_content("Director")
 
+    @property
+    def actors(self) -> dict:
+        return self._try_to_get_property_from_content("Actors")
+
     def add_content(self, content: dict, content_dict: ContentDict):
+        with open('inputs/stopwords.txt') as f:
+            stopwords_list = f.read().splitlines()
+
         def get_runtime() -> int:
             item_runtime = content['Runtime']
             if item_runtime == 'N/A':
@@ -67,7 +74,7 @@ class Item(Entity):
         def filter_lists(key):
             payload = {}
             if content[key] != 'N/A':
-                if key == "Direct":
+                if key == "Director" or key == "Actors":
                     s = content[key].replace(", ", ",").lower().split(',')
                 else:
                     s = content[key].replace(" ", "").lower().split(',')
@@ -75,6 +82,12 @@ class Item(Entity):
                     content_dict.append(g)
                     payload.update({str(g): g})
             return payload
+
+        def stract_plot(plot):
+            plot = plot.lower()
+            plot = re.sub("[^a-zA-Z]+", " ", plot)
+
+            return [word for word in plot.split(" ") if word not in stopwords_list]
 
         def awards_structure(awards):
             def extract_values(regex, string):
@@ -120,7 +133,7 @@ class Item(Entity):
                     "Director": filter_lists("Director"),
                     "Writer": content["Writer"],
                     "Actors": content["Actors"],
-                    "Plot": content["Plot"],
+                    "Plot": stract_plot(content["Plot"]),
                     "Language": filter_lists("Language"),
                     "Country": filter_lists("Country"),
                     "Awards": awards_structure(content["Awards"]),

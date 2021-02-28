@@ -16,6 +16,7 @@ class DictBuilder:
 
         global_avg: float = 0.0
 
+        print("Extracting Ratings Data")
         for row in np.array(ratings.data):
             user_id = row[3]
             item_id = row[4]
@@ -35,6 +36,7 @@ class DictBuilder:
 
         global_imdb: float = 0.0
         i_imdb: int = 0
+        print("Extracting Content Data")
         for row in np.array(content.data):
             item_id = row[2]
             item_content = json.loads(row[1])
