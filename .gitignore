@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 .idea/
 output.csv
-
+.DS_Store
 # C extensions
 *.so
 

@@ -55,8 +55,8 @@ class Item(Entity):
         return self._try_to_get_property_from_content("Metascore")
 
     def add_content(self, content: dict, content_dict: ContentDict):
-        with open('inputs/stopwords.txt') as f:
-            stopwords_list = f.read().splitlines()
+        # with open('inputs/stopwords.txt') as f:
+        #     stopwords_list = f.read().splitlines()
 
         def get_runtime() -> int:
             item_runtime = content['Runtime']
@@ -65,7 +65,8 @@ class Item(Entity):
             elif ' h ' not in item_runtime:
                 return int(item_runtime.replace(" min", ""))
             else:
-                data = item_runtime.replace(" h ", ",").replace(" min", "").split(",")
+                data = item_runtime.replace(
+                    " h ", ",").replace(" min", "").split(",")
                 return int(data[0]) * 60 + int(data[1])
 
         def get_imdb_rating():
